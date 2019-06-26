@@ -16,11 +16,27 @@ for i=1:1:119
     F = F + D;
 end
 
-%C = F.*(F>620);
+C = F.*(F>620);
 
-figure(1) = imagesc(F','CDataMapping','scaled')
+figure(1) = imagesc(B','CDataMapping','scaled')
 
 %C = A.*(A>630);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 %figure(2) = imagesc(C','CDataMapping','scaled')
 
