@@ -60,8 +60,11 @@ M = M + F;
 
 end 
 
-figure; imagesc(M)
-
+%figure; imagesc(M)
+figure; imagesc(A')
+figure; plot(sum(A'))
+SG = sgolayfilt(sum(A'),3,31);
+figure; plot(SG)
 
 %G = SPEstruct.data{1,1}.*(SPEstruct.data{1,1}>630)
 %figure;imagesc() 
@@ -79,7 +82,7 @@ figure; imagesc(M)
 % 
 
 
-
+ [pks,locs]=findpeaks(SG, 'MINPEAKHEIGHT', (max(SG)/2));
 
 
 
