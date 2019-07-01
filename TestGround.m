@@ -3,7 +3,7 @@ clear all; close all; clc
 
 SPEstruct = load_SPE_filetype
 
-A = SPEstruct.data{1,1} ;
+A = SPEstruct.data{1,119} ;
 A = A.*(A>630);
 B = SPEstruct.data{1,2};
 
@@ -50,21 +50,38 @@ Z = flipud(Z);
 
 
 for i = 1:1:119 ; 
-C= SPEstruct.data{1,i} .*(SPEstruct.data{1,i}>600);
-C = C';
-S= C(460:638 , 117+i*4:149+i*4);
-F=zeros(1024);
-X = S.*Z;
-F(460:638 , 117+i*5:149+i*5) = X;
-M = M + F; 
+
+    
+C= SPEstruct.data{1,i} .*(SPEstruct.data{1,i}>615); %Extract data of each frame
+C = C'; 
+
+
+SG = sgolayfilt(sum(C),3,51); % smooth the summation of data files to find place of concentration
+figure; plot(SG)
+[pks,locs]=findpeaks(SG, 'MINPEAKHEIGHT', (max(SG)/1.2)); % find place of peaks
+
+S= C(460:638 , (locs(1)-16):(locs(1)+16)); %cut matrix from data
+
+F=zeros(1024); %initialize empty matrix to apply mask on
+
+X = S.*Z; % apply mask on data
+
+
+
+F(460:638 , 117+i*5:149+i*5) = X; % insert masked data in the empty matrix
+
+%figure;imagesc(F)
+
+
+M = M + F;  % add masked data together
+
 
 end 
 
 %figure; imagesc(M)
-figure; imagesc(A')
-figure; plot(sum(A'))
-SG = sgolayfilt(sum(A'),3,31);
-figure; plot(SG)
+% figure; imagesc(A')
+% figure; plot(sum(A'))
+% SG = sgolayfilt(sum(A'),3,31);
 
 %G = SPEstruct.data{1,1}.*(SPEstruct.data{1,1}>630)
 %figure;imagesc() 
@@ -82,7 +99,7 @@ figure; plot(SG)
 % 
 
 
- [pks,locs]=findpeaks(SG, 'MINPEAKHEIGHT', (max(SG)/2));
+ 
 
 
 
