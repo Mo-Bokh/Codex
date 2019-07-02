@@ -118,6 +118,7 @@ Nr = zeros(1024);
     end
      
  end
+ 
 % flip the mask to correct orientation
 Z = flipud(Z);
 Zl= flipud(Zl);
@@ -127,9 +128,9 @@ Zr= flipud(Zr);
 %apply mask to each frame and stack them to one matrix
 for i = 1:1:119 ; 
 
-    
+% Extract data from each frame   
 C= SPEstruct.data{1,i} - mean(mean(SPEstruct.data{1,i}(:,1:300))); %Extract data of each frame
-C = C'; 
+C = C'; %invert it to correct orientation
 
 
 SG = sgolayfilt(sum(C),3,51); % smooth the summation of data files to find place of concentration
@@ -137,25 +138,28 @@ SG = sgolayfilt(sum(C),3,51); % smooth the summation of data files to find place
 
 disp(locs(1))
 
-%cut matrix from data
+% ---- Cut matrix from each frame -----
 SD= C(460:638 , (locs(1)-16):(locs(1)+16)); % [ 5 points from the bulk of each frame]
-SDl = C(460:638 , (locs(1)-53):(locs(1)-8)); % [  ]
-SDm = C(460:638 , (locs(1)- 34):(locs(1)+19)); % [  ]
-SDr = C(460:638 , (locs(1)- 9):(locs(1)+28)); % [  ]
+SDl = C(460:638 , (locs(1)-53):(locs(1)-8)); % [ 18 points from the left part of each frame ]
+SDm = C(460:638 , (locs(1)- 34):(locs(1)+19)); % [ 26 Point from the middle part of each frame ]
+SDr = C(460:638 , (locs(1)- 9):(locs(1)+28)); % [ 10 Point from the right part of each frame ]
 
 
-
-F=zeros(1024); %initialize empty matrix to apply mask on
+% ---- Initialize empty matrix to apply mask on
+F=zeros(1024); 
 Fl=zeros(1024);
 Fm=zeros(1024);
 Fr=zeros(1024);
 
-X = SD.*Z; % apply mask on data
+
+% ---- Apply mask on data ----
+X = SD.*Z; 
 Xl = SDl.*Zl;
 Xm = SDm .* Zm;
 Xr = SDr .* Zr;
 
-F(460:638 , (locs(1)-16):(locs(1)+16)) = X; % insert masked data in the empty matrix
+% ----- Insert masked data in the empty matrix -----
+F(460:638 , (locs(1)-16):(locs(1)+16)) = X; 
 Fl(460:638 , (locs(1)-53):(locs(1)-8)) = Xl;
 Fm(460:638 , (locs(1)- 34):(locs(1)+19)) = Xm;
 Fr(460:638 , (locs(1)- 9):(locs(1)+28)) = Xr;
@@ -165,11 +169,14 @@ Fr(460:638 , (locs(1)- 9):(locs(1)+28)) = Xr;
 
 %figure;imagesc(F)
 
-
-M = M + F;  % add masked data together
+% ----  Add masked data together -----
+M = M + F;  
 Ml = Ml + Fl;
 Mm = Mm + Fm;
 Mr = Mr + Fr;
+
+
+% ---- Count number of data added on each index in the matrix ----
 
 P = F~=0;
 Pl = Fl~=0;
@@ -182,6 +189,7 @@ Nm = Nm + Pm;
 Nr = Nr + Pr;
 end 
 
+% ------ Average out frames ------
 M(N~=0) = M(N~=0) ./ N(N~=0);
 Ml(Nl~=0) = Ml(Nl~=0) ./ Nl(Nl~=0);
 Mm(Nm~=0) = Mm(Nm~=0) ./ Nm(Nm~=0);
@@ -215,6 +223,8 @@ Mr(Nr~=0) = Mr(Nr~=0) ./ Nr(Nr~=0);
 
 
 %figure(2) = imagesc(C','CDataMapping','scaled')
+
+% ----------- Display Images -------------
 subplot(3,1,1);imagesc(Ml)
 colormap jet
 colorbar
