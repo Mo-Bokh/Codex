@@ -4,19 +4,29 @@ clear all; close all; clc
 SPEstruct = load_SPE_filetype
 
 A = SPEstruct.data{1,1} ;
-A = A.*(A>630);
+A = A - mean(mean(A(1:300,:)));
+A = A';
 B = SPEstruct.data{1,2};
 
-
-% 
-% for i=5:1:10
-% P = SPEstruct.data{1,i} .*(SPEstruct.data{1,i}>630);
-% figure;imagesc(P')
-% end
-
+%initilize variables
 Z = zeros (177,29);
- 
- 
+Zl = zeros (177,29);
+Zm =zeros (177,29);
+Zr = zeros (177,29);
+
+M = zeros (1024);
+Ml = zeros (1024);
+Mm = zeros (1024);
+Mr = zeros (1024);
+
+N = zeros(1024);
+Nl = zeros(1024); 
+Nm = zeros(1024);
+Nr = zeros(1024); 
+
+
+
+ %create a mask with thickness of 5 data points
  for i=1:1:177
      
     for j=1:1:177
@@ -38,52 +48,146 @@ Z = zeros (177,29);
     end
      
  end
-
+ 
+ 
+ %create a mask with thickness of 18 data points
+ for i=1:1:177
+     
+    for j=1:1:177
+       
+        if (i==6*j) 
+        
+            for k=0:1:5
+        
+                for l=0:1:17
+                    
+                    Zl(i + k,j + l) = 1;
+                
+                end
+        
+            end
+        
+        end
+        
+    end
+     
+ end
+ 
+  %create a mask with thickness of 18 data points
+ for i=1:1:177
+     
+    for j=1:1:177
+       
+        if (i==6*j) 
+        
+            for k=0:1:5
+        
+                for l=0:1:25
+                    
+                    Zm(i + k,j + l) = 1;
+                
+                end
+        
+            end
+        
+        end
+        
+    end
+     
+ end
+ 
+  %create a mask with thickness of 10 data points
+ for i=1:1:177
+     
+    for j=1:1:177
+       
+        if (i==6*j) 
+        
+            for k=0:1:5
+        
+                for l=0:1:9
+                    
+                    Zr(i + k,j + l) = 1;
+                
+                end
+        
+            end
+        
+        end
+        
+    end
+     
+ end
+% flip the mask to correct orientation
 Z = flipud(Z);
+Zl= flipud(Zl);
+Zm= flipud(Zm);
+Zr= flipud(Zr);
 
-M = zeros (1024);
-M2 = zeros (1024);
-
-
+%apply mask to each frame and stack them to one matrix
 for i = 1:1:119 ; 
 
     
-C= SPEstruct.data{1,i} .*(SPEstruct.data{1,i}>630); %Extract data of each frame
+C= SPEstruct.data{1,i} - mean(mean(SPEstruct.data{1,i}(:,1:300))); %Extract data of each frame
 C = C'; 
 
 
-
 SG = sgolayfilt(sum(C),3,51); % smooth the summation of data files to find place of concentration
-% figure; plot(SG)
 [pks,locs]=findpeaks(SG, 'MINPEAKHEIGHT', (max(SG)/1.2)); % find place of peaks
 
 disp(locs(1))
 
-SD= C(460:638 , (locs(1)-16):(locs(1)+16)); %cut matrix from data
-SD2 = C(460:638 , (locs(1)-3):(locs(1)+29));
+%cut matrix from data
+SD= C(460:638 , (locs(1)-16):(locs(1)+16)); % [ 5 points from the bulk of each frame]
+SDl = C(460:638 , (locs(1)-53):(locs(1)-8)); % [  ]
+SDm = C(460:638 , (locs(1)- 34):(locs(1)+19)); % [  ]
+SDr = C(460:638 , (locs(1)- 9):(locs(1)+28)); % [  ]
 
 
 
 F=zeros(1024); %initialize empty matrix to apply mask on
-F2=zeros(1024);
-
+Fl=zeros(1024);
+Fm=zeros(1024);
+Fr=zeros(1024);
 
 X = SD.*Z; % apply mask on data
-X2 = SD2.*Z
-
+Xl = SDl.*Zl;
+Xm = SDm .* Zm;
+Xr = SDr .* Zr;
 
 F(460:638 , (locs(1)-16):(locs(1)+16)) = X; % insert masked data in the empty matrix
-F2(460:638 , (locs(1)-3):(locs(1)+29)) = X2;
+Fl(460:638 , (locs(1)-53):(locs(1)-8)) = Xl;
+Fm(460:638 , (locs(1)- 34):(locs(1)+19)) = Xm;
+Fr(460:638 , (locs(1)- 9):(locs(1)+28)) = Xr;
+
+
+
+
 %figure;imagesc(F)
 
 
 M = M + F;  % add masked data together
-M2 = M2 + F2;
+Ml = Ml + Fl;
+Mm = Mm + Fm;
+Mr = Mr + Fr;
 
+P = F~=0;
+Pl = Fl~=0;
+Pm = Fm~=0;
+Pr = Fr~=0;
+
+N = N + P;
+Nl = Nl + Pl;
+Nm = Nm + Pm;
+Nr = Nr + Pr;
 end 
 
+M(N~=0) = M(N~=0) ./ N(N~=0);
+Ml(Nl~=0) = Ml(Nl~=0) ./ Nl(Nl~=0);
+Mm(Nm~=0) = Mm(Nm~=0) ./ Nm(Nm~=0);
+Mr(Nr~=0) = Mr(Nr~=0) ./ Nr(Nr~=0);
 
- figure; imagesc(A')
+
 % figure; plot(sum(A'))
 % SG = sgolayfilt(sum(A'),3,31);
 
@@ -111,6 +215,28 @@ end
 
 
 %figure(2) = imagesc(C','CDataMapping','scaled')
-figure;imagesc(M)
-figure;imagesc(M2)
+subplot(3,1,1);imagesc(Ml)
+colormap jet
 colorbar
+caxis([0 300])
+
+
+subplot(3,1,2);imagesc(Mm)
+colormap jet 
+colorbar
+caxis([0 300])
+
+
+subplot(3,1,3);imagesc(Mr)
+colormap jet 
+colorbar
+caxis([0 300])
+
+figure;imagesc(M) 
+colormap jet 
+colorbar
+
+figure;imagesc(A)
+colormap jet 
+colorbar
+
