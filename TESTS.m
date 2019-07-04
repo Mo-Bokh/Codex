@@ -15,7 +15,7 @@ B = SPEstruct.data{1,2};
 Zm =zeros (250,65);
 Mm = zeros (1024);
 Nm = zeros(1024);
- 
+Nc = zeros(1024);
 
 tn = 3;
 
@@ -120,7 +120,18 @@ Mm(Nm~=0) = Mm(Nm~=0) ./ Nm(Nm~=0);
 
 Mc(:,:,sn) = Mm;
 
+
+Pc = Mm~=0;
+
+Nc = Nc + Pc;
 end
+
+Mt = sum(Mc,3);
+
+Mt(Nc~=0) = Mt(Nc~=0) ./ Nc(Nc~=0);
+
+
+
 
 % ----------- Display Images -------------
 for n=1:1:tn
@@ -135,4 +146,9 @@ colormap jet
 colorbar
 caxis([0 900])
 end
+
+figure;imagesc(Mt)
+colormap jet
+colorbar
+caxis([0 300])
 
