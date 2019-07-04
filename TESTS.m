@@ -11,26 +11,20 @@ A = A';
 B = SPEstruct.data{1,2};
 
 %initilize variables
-Z = zeros (177,29);
-Zl = zeros (250,65);
+
 Zm =zeros (250,65);
-Zr = zeros (250,65);
-
-M = zeros (1024);
-Ml = zeros (1024);
 Mm = zeros (1024);
-Mr = zeros (1024);
-
-N = zeros(1024);
-Nl = zeros(1024); 
 Nm = zeros(1024);
-Nr = zeros(1024); 
+ 
+
+tn = 3;
 
 thc = 20;
 h = 250 ;
 w = 65;
-tn = 5;
-inc = 20;
+
+
+inc = floor(100/tn);
  
 img = zeros(300, 400, tn); 
  
@@ -82,20 +76,20 @@ SG = sgolayfilt(sum(C),3,51); % smooth the summation of data files to find place
 
 % ---- Cut matrix from each frame -----
 
-SDm = C(418:668 , (locs(1)- 23 - (sn-1) *inc ):(locs(1) + 41 - (sn-1) * inc)); % [ 25 Point from the middle part of each frame ]
+SDm = C(418:668 , (locs(1)- (w-42) - (sn-1) *inc ):(locs(1) + 41 - (sn-1) * inc)); % [ 25 Point from the middle part of each frame ]
 
 % ---- Initialize empty matrix to apply mask on
 
 Fm=zeros(1024);
 ZZ=zeros(1024);
 
-%Showcase
+%Showcase area of interest
 if(i==1)
 
-    ZZ(418:668 , (locs(1)- 23 - (sn-1) *inc):(locs(1)+ 41 - (sn-1) * inc)) + (Zm*700) ;
-    ZZ = C + ZZ
+    ZZ(418:668 , (locs(1)- (w-42) - (sn-1) *inc):(locs(1)+ 41 - (sn-1) * inc)) = (Zm.*700) ;
+    ZZ = C + ZZ;
     
-    img(1,1,1) = ZZ(400:700 , 0 : 400);
+    img(:,:,sn) = ZZ(400:699 , 1 : 400);
         
 end
 
@@ -105,7 +99,7 @@ Xm = SDm .* Zm;
 
 % ----- Insert masked data in the empty matrix -----
 
-Fm(418:668 , (locs(1)- 23 - (sn-1) *inc):(locs(1)+ 41 - (sn-1) * inc)) = Xm;
+Fm(418:668 , (locs(1)- (w-42) - (sn-1) *inc):(locs(1)+ 41 - (sn-1) * inc)) = Xm;
 
 % ----  Add masked data together -----
 
@@ -129,18 +123,19 @@ end
 % ----------- Display Images -------------
 for n=1:1:tn
 
-subplot(tn,1,n);imagesc(Mc(:,:,n))
+subplot(tn,2,(n*2)-1);imagesc(Mc(:,:,n))
 colormap jet
 colorbar
 caxis([0 300])
 
+subplot(tn,2,(n*2));imagesc(img(:,:,n))
+colormap jet
+colorbar
+caxis([0 900])
 end
 
 for n=1:1:tn
 
-subplot(tn,1,n);imagesc(img(:,:,n))
-colormap jet
-colorbar
-caxis([0 300])
+
 
 end
