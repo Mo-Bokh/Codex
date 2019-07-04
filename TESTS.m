@@ -19,12 +19,12 @@ Nm = zeros(1024);
 
 tn = 3;
 
-thc = 20;
+thc = 30;
 h = 250 ;
-w = 65;
 
 
-inc = floor(100/tn);
+
+
  
 img = zeros(300, 400, tn); 
  
@@ -32,7 +32,7 @@ img = zeros(300, 400, tn);
 %create a mask with thickness of 10 data points
  for i=1:1:h
      
-    for j=1:1:w
+    for j=1:1:60
        
         if (i==6*j) 
         
@@ -55,6 +55,8 @@ img = zeros(300, 400, tn);
 % flip the mask to correct orientation
 
 Zm= flipud(Zm);
+w = size(Zm,2);
+inc = floor((100-w)/tn);
 
 for sn = 1 : 1 : tn  
     
@@ -134,8 +136,3 @@ colorbar
 caxis([0 900])
 end
 
-for n=1:1:tn
-
-
-
-end
