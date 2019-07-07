@@ -15,7 +15,9 @@ B = SPEstruct.data{1,2};
 Zm =zeros (250,65);
 Mm = zeros (1024);
 Nm = zeros(1024);
+
 Nc = zeros(1024);
+Ncr = zeros(1024);
 
 tn = 6;
 
@@ -58,7 +60,7 @@ imgr = zeros(300, 400, tn);
 Zm= flipud(Zm);
 
 w = size(Zm,2);
-inc = floor((100-w)/tn);
+inc = floor((125-w)/tn);
 Zr= fliplr(Zm);
 
 for sn = 1 : 1 : tn  
@@ -81,9 +83,13 @@ SG = sgolayfilt(sum(C),3,55); % smooth the summation of data files to find place
 
 % disp(locs(1))
 
+
+% ------------------- Apply Algorithim on left side -----------------------
+%__________________________________________________________________________
+
 % ---- Cut matrix from each frame -----
 
-SDm = C(418:668 , (locs(1)- (w-42) - (sn-1) *inc ):(locs(1) + 41 - (sn-1) * inc)); % [ 25 Point from the middle part of each frame ]
+SDm = C(418:668 , (locs(1)- (w-52) - (sn-1) *inc ):(locs(1) + 51 - (sn-1) * inc)); % [ 25 Point from the middle part of each frame ]
 
 % ---- Initialize empty matrix to apply mask on
 
@@ -92,7 +98,7 @@ ZZ=zeros(1024);
 
 %Showcase area of interest
 if(i==1)
-    ZZ(418:668 , (locs(1)- (w-42) - (sn-1) *inc):(locs(1)+ 41 - (sn-1) * inc)) = (Zm.*700) ;      
+    ZZ(418:668 , (locs(1)- (w-52) - (sn-1) *inc):(locs(1)+ 51 - (sn-1) * inc)) = (Zm.*700) ;      
     ZZ = C + ZZ;          
     img(:,:,sn) = ZZ(400:699 , 1 : 400);            
 end
@@ -103,7 +109,7 @@ Xm = SDm .* Zm;
 
 % ----- Insert masked data in the empty matrix -----
 
-Fm(418:668 , (locs(1)- (w-42) - (sn-1) *inc):(locs(1)+ 41 - (sn-1) * inc)) = Xm;
+Fm(418:668 , (locs(1)- (w-52) - (sn-1) *inc):(locs(1)+ 51 - (sn-1) * inc)) = Xm;
 
 % ----  Add masked data together -----
 
@@ -116,10 +122,11 @@ Nm = Nm + Pm;
 
 % ------------------ Apply Algorithim on right side -----------------------
 %__________________________________________________________________________
-if ((locs(1) + 41 - (sn-1) * inc) + 125) =< 1024 
+
+if ((locs(1) + 41 - (sn-1) * inc) + 150) <= 1024 
 
 % ---- Cut matrix from each frame -----   
-SDr = C(418:668 ,(locs(1)- (w-42) - (sn-1) *inc )+ 125:(locs(1) + 41 - (sn-1) * inc) + 125) ;
+SDr = C(418:668 ,(locs(1)- (w-42) - (sn-1) *inc )+ 150:(locs(1) + 41 - (sn-1) * inc) + 150) ;
 
 % ---- Initialize empty matrix to apply mask on
 Fr=zeros(1024);
@@ -127,7 +134,7 @@ ZZr=zeros(1024);
 
 %Showcase area of interest
 if(i==1)
-    ZZr(418:668 , (locs(1)- (w-42) - (sn-1) *inc )+ 125:(locs(1) + 41 - (sn-1) * inc) + 125) = (Zr.*700) ;
+    ZZr(418:668 , (locs(1)- (w-42) - (sn-1) *inc )+ 150:(locs(1) + 41 - (sn-1) * inc) + 150) = (Zr.*700) ;
     ZZr = C + ZZr;
     imgr(:,:,sn) = ZZr(400:699 , 1 : 400);
 end
@@ -135,7 +142,7 @@ end
 Xr = SDr .* Zr;
 
 % ----- Insert masked data in the empty matrix -----
-Fr(418:668 , (locs(1)- (w-42) - (sn-1) *inc )+ 125:(locs(1) + 41 - (sn-1) * inc) + 125) = Xr;
+Fr(418:668 , (locs(1)- (w-42) - (sn-1) *inc )+ 150:(locs(1) + 41 - (sn-1) * inc) + 150) = Xr;
 
 % ----  Add masked data together -----
 Mr = Mr + Fr;
@@ -150,13 +157,13 @@ end
 
 %*&^%$#@!
 %----------------------TEST--------------------
-if (sn==1)
-%disp(locs);
-figure;plot(SG)
+% if (sn==1)
+% %disp(locs);
+% figure;plot(SG)
+% 
+% disp(locs(length(locs))-locs(1))
 
-disp(locs(length(locs))-locs(1))
-
-end 
+%end 
 %^-^-^-^---------------TEST--------------^-^-^-^
 
 end
@@ -186,6 +193,19 @@ Mt(Nc~=0) = Mt(Nc~=0) ./ Nc(Nc~=0);
 Mtr(Ncr~=0) = Mtr(Ncr~=0) ./ Ncr(Ncr~=0);
 
 
+PCTL = Mt ~=0
+PCTR = Mtr ~=0
+
+FINAL = ((Mt + Mtr)* PCTL * PCTR)/2
+
+
+
+
+
+
+
+
+
 % ----------- Display Images -------------
 for n=1:1:tn
 
@@ -204,6 +224,7 @@ colormap jet
 colorbar
 caxis([0 300])
 
+figure;
 for n=1:1:tn
 
 subplot(tn,2,(n*2)-1);imagesc(Mcr(:,:,n))
