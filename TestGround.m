@@ -29,7 +29,7 @@ Nr = zeros(1024);
  %create a mask with thickness of 5 data points
  for i=1:1:177
      
-    for j=1:1:177
+    for j=1:1:29
        
         if (i==6*j) 
         
@@ -48,12 +48,12 @@ Nr = zeros(1024);
     end
      
  end
- 
+
  
  %create a mask with thickness of 18 data points
  for i=1:1:177
      
-    for j=1:1:177
+    for j=1:1:29
        
         if (i==6*j) 
         
@@ -73,10 +73,10 @@ Nr = zeros(1024);
      
  end
  
-  %create a mask with thickness of 18 data points
+  %create a mask with thickness of 25 data points
  for i=1:1:177
      
-    for j=1:1:177
+    for j=1:1:29
        
         if (i==6*j) 
         
@@ -99,7 +99,7 @@ Nr = zeros(1024);
   %create a mask with thickness of 10 data points
  for i=1:1:177
      
-    for j=1:1:177
+    for j=1:1:29
        
         if (i==6*j) 
         
