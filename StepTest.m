@@ -2,7 +2,7 @@
 clear all; close all; clc
 
 mm2px = 27.78488797889;
-startingPosition = 35.2;	% change this according to your data
+startingPosition = 35.5;	% change this according to your data
 step = 1700;
 frames = 10;
 
