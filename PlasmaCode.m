@@ -1,30 +1,29 @@
 clear all; close all; clc
 
-FLAMEstruct = load_SPE_filetype;
+SPEstruct(1) = load_SPE_filetype; % load SPE 44
+SPEstruct(2) = load_SPE_filetype; % load SPE 45
 
-SPEstruct(1) = load_SPE_filetype;
-SPEstruct(2) = load_SPE_filetype;
 % ------ Parameters ------
 
-tn = 5; % Number of masks used
+NumMsk = 5; % Number of masks used
 
-thc = 20; % Number of data collected per row in Mask
-h = 250 ; % Height of mask
+ThickDataMsk = 20; % Number of data collected per row in Mask
+HeightMsk = 250 ; % Height of mask
 
-Span = 120; % Span of masks across each side
-sShift = 140; % Distance between left and right masks
+SpanMsk = 120; % Span of masks across each side
+SideShift = 140; % Distance between left and right masks
 
 % ---- initilize empty variables ------
-Zm =zeros (250,65);
+LMsk =zeros (250,65);
 
-FINAL = zeros(1024,1024,2);
+FinalResult = zeros(1024,1024,2);
 
 
-img = zeros(300, 400, tn); 
-imgr = zeros(300, 400, tn); 
+imgL = zeros(300, 400, NumMsk); 
+imgR = zeros(300, 400, NumMsk); 
 
-% ------ create a mask with thickness of 10 data points-----
- for i=1:1:h
+% ------ create a mask with thickness specified-----
+ for i=1:1:HeightMsk
      
     for j=1:1:60
        
@@ -32,9 +31,9 @@ imgr = zeros(300, 400, tn);
         
             for k=0:1:5
         
-                for l=0:1:thc
+                for l=0:1:ThickDataMsk
                     
-                    Zm(i + k,j + l) = 1;
+                    LMsk(i + k,j + l) = 1;
                 
                 end
         
@@ -46,38 +45,38 @@ imgr = zeros(300, 400, tn);
      
  end
  
-Zm= flipud(Zm); % flip the mask to correct orientation
-Zr= fliplr(Zm); % flip the mask to correct orientation
+LMsk= flipud(LMsk); % flip the mask to correct orientation
+RMsk= fliplr(LMsk); % flip the mask to correct orientation
 
-w = size(Zm,2); % extract width parameter 
+WidthMsk = size(LMsk,2); % extract width parameter 
 
-inc = floor((120-w)/tn); % calculate increment of masks
+MskInc = floor((SpanMsk-WidthMsk)/NumMsk); % calculate increment of masks
 
 % ----- Data collection Algorithim -----
 for d = 1 : 1 : 2
     
- Nc = zeros(1024);
- Ncr = zeros(1024);
+ NcL = zeros(1024);
+ NcR = zeros(1024);
    
     
-for sn = 1 : 1 : tn  
+for sn = 1 : 1 : NumMsk  
     
-Mm = zeros (1024);
-Nm = zeros(1024);
+ML = zeros (1024);
+NL = zeros(1024);
 
-Mr = zeros (1024);
-Nr = zeros(1024);
+MR = zeros (1024);
+NR = zeros(1024);
    
 
 %apply mask to each frame and stack them to one matrix
 for i = 1:1:119 ; 
 
 % Extract data from each frame   
-C= SPEstruct(d).data{1,i} - mean(mean(SPEstruct(d).data{1,i}(:,1:100))); %Extract data of each frame
-C = C'; %invert it to correct orientation
+RawData= SPEstruct(d).data{1,i} - mean(mean(SPEstruct(d).data{1,i}(:,1:100))); %Extract data of each frame
+RawData = RawData'; %invert it to correct orientation
 
-SG = sgolayfilt(sum(C),3,65); % smooth the summation of data files to find place of concentration
-[pks,locs]=findpeaks(SG, 'MINPEAKHEIGHT', (max(SG)/1.7)); % find place of peaks
+ConcenData = sgolayfilt(sum(RawData),3,65); % smooth the summation of data files to find place of concentration
+[pks,locs]=findpeaks(ConcenData, 'MINPEAKHEIGHT', (max(ConcenData)/1.7)); % find place of peaks
 
 % disp(locs(1))
 
@@ -85,170 +84,167 @@ SG = sgolayfilt(sum(C),3,65); % smooth the summation of data files to find place
 % ------------------- Apply Algorithim on left side -----------------------
 %__________________________________________________________________________
 
-if (locs(1)- (w-52) - (sn-1) *inc ) > 0 
+if (locs(1)- (WidthMsk-52) - (sn-1) *MskInc ) > 0 
     
 % ---- Cut matrix from each frame -----
     
-SDm = C(268:518 , (locs(1)- (w-52) - (sn-1) *inc ):(locs(1) + 51 - (sn-1) * inc)); % [ 25 Point from the middle part of each frame ]
+CutDataL = RawData(268:518 , (locs(1)- (WidthMsk-52) - (sn-1) *MskInc ):(locs(1) + 51 - (sn-1) * MskInc)); % Cut data using masks
 
 % ---- Initialize empty matrix to apply mask on
 
-Fm=zeros(1024);
-ZZ=zeros(1024);
+MskCarrierL=zeros(1024);
+ShowMskL=zeros(1024);
 
 %Showcase area of interest
 if(i==1)
-    ZZ(268:518 , (locs(1)- (w-52) - (sn-1) *inc):(locs(1)+ 51 - (sn-1) * inc)) = (Zm.*700) ;      
-    ZZ = C + ZZ;          
-    img(:,:,sn) = ZZ(250:549 , 1 : 400);            
+    ShowMskL(268:518 , (locs(1)- (WidthMsk-52) - (sn-1) *MskInc):(locs(1)+ 51 - (sn-1) * MskInc)) = (LMsk.*700) ;      
+    ShowMskL = RawData + ShowMskL;          
+    imgL(:,:,sn) = ShowMskL(250:549 , 1 : 400);            
 end
 
 % ---- Apply mask on data ----
 
-Xm = SDm .* Zm;
+XL = CutDataL .* LMsk;
 
 % ----- Insert masked data in the empty matrix -----
 
-Fm(268:518 , (locs(1)- (w-52) - (sn-1) *inc):(locs(1)+ 51 - (sn-1) * inc)) = Xm;
+MskCarrierL(268:518 , (locs(1)- (WidthMsk-52) - (sn-1) *MskInc):(locs(1)+ 51 - (sn-1) * MskInc)) = XL;
 
 % ----  Add masked data together -----
 
-Mm = Mm + Fm;
+ML = ML + MskCarrierL;
 
 % ---- Count number of data added on each index in the matrix ----
 
-Pm = Fm~=0;
-Nm = Nm + Pm;
+NumDataL = MskCarrierL~=0;
+NL = NL + NumDataL;
 
 end
 
 % ------------------ Apply Algorithim on right side -----------------------
 %__________________________________________________________________________
 
-if ((locs(1) + 41 - (sn-1) * inc) + sShift) <= 1024 
+if ((locs(1) + 41 - (sn-1) * MskInc) + SideShift) <= 1024 
 
 % ---- Cut matrix from each frame -----   
-SDr = C(268:518 ,(locs(1)- (w-42) - (sn-1) *inc )+ sShift:(locs(1) + 41 - (sn-1) * inc) + sShift) ;
+CutDataR = RawData(268:518 ,(locs(1)- (WidthMsk-42) - (sn-1) *MskInc )+ SideShift:(locs(1) + 41 - (sn-1) * MskInc) + SideShift) ;
 
 % ---- Initialize empty matrix to apply mask on
-Fr=zeros(1024);
-ZZr=zeros(1024);
+MskCarrierR=zeros(1024);
+ShowMskR=zeros(1024);
 
 %Showcase area of interest
 if(i==1)
-    ZZr(268:518 , (locs(1)- (w-42) - (sn-1) *inc )+ sShift:(locs(1) + 41 - (sn-1) * inc) + sShift) = (Zr.*700) ;
-    ZZr = C + ZZr;
-    imgr(:,:,sn) = ZZr(250:549 , 1 : 400);
+    ShowMskR(268:518 , (locs(1)- (WidthMsk-42) - (sn-1) *MskInc )+ SideShift:(locs(1) + 41 - (sn-1) * MskInc) + SideShift) = (RMsk.*700) ;
+    ShowMskR = RawData + ShowMskR;
+    imgR(:,:,sn) = ShowMskR(250:549 , 1 : 400);
 end
 % ---- Apply mask on data ----
-Xr = SDr .* Zr;
+XR = CutDataR .* RMsk;
 
 % ----- Insert masked data in the empty matrix -----
-Fr(268:518 , (locs(1)- (w-42) - (sn-1) *inc )+ sShift:(locs(1) + 41 - (sn-1) * inc) + sShift) = Xr;
+MskCarrierR(268:518 , (locs(1)- (WidthMsk-42) - (sn-1) *MskInc )+ SideShift:(locs(1) + 41 - (sn-1) * MskInc) + SideShift) = XR;
 
 % ----  Add masked data together -----
-Mr = Mr + Fr;
+MR = MR + MskCarrierR;
 
 % ---- Count number of data added on each index in the matrix ----
-Pr = Fr~=0;
-Nr = Nr + Pr;
+NumData = MskCarrierR~=0;
+NR = NR + NumData;
 
 end
 
 end
 
 % ------ Average out frames ------
-Mm(Nm~=0) = Mm(Nm~=0) ./ Nm(Nm~=0);
-Mr(Nr~=0) = Mr(Nr~=0) ./ Nr(Nr~=0);
+ML(NL~=0) = ML(NL~=0) ./ NL(NL~=0);
+MR(NR~=0) = MR(NR~=0) ./ NR(NR~=0);
 
-Mc(:,:,sn) = Mm;
-Mcr(:,:,sn) = Mr;
+ResultCollectionL(:,:,sn) = ML;
+ResultCollectionR(:,:,sn) = MR;
 
 
-Pc = Mm~=0;
-Pcr = Mr~=0;
+nonZeroL = ML~=0;
+nonZeroR = MR~=0;
 
-Nc = Nc + Pc;
-Ncr = Ncr + Pcr;
+NcL = NcL + nonZeroL;
+NcR = NcR + nonZeroR;
 
 
 end
 
 % Summing graphs of different mask position and averaging them
-Mt = sum(Mc,3);
-Mtr = sum(Mcr,3);
+totalResultL = sum(ResultCollectionL,3);
+totalResultR = sum(ResultCollectionR,3);
 
-Mt(Nc~=0) = Mt(Nc~=0) ./ Nc(Nc~=0);
-Mtr(Ncr~=0) = Mtr(Ncr~=0) ./ Ncr(Ncr~=0);
+totalResultL(NcL~=0) = totalResultL(NcL~=0) ./ NcL(NcL~=0);
+totalResultR(NcR~=0) = totalResultR(NcR~=0) ./ NcR(NcR~=0);
 
 
-PCTL = Mt ~=0;
-PCTR = Mtr ~=0;
+nonZeroTotalL = totalResultL ~=0;
+nonZeroTotalR = totalResultR ~=0;
 
-FINAL(:,:,d) = ((Mt + Mtr).* PCTL .* PCTR)./2;
+FinalResult(:,:,d) = ((totalResultL + totalResultR).* nonZeroTotalL .* nonZeroTotalR)./2;
 
 
 end
 
-Calib = sum(FINAL,3) / 2; 
+nonZeroFinal = (FinalResult(:,:,1)~=0) + (FinalResult(:,:,2)~=0);
+nonZeroMskFinal = (FinalResult(:,:,1)~=0) .* (FinalResult(:,:,2)~=0);
+Calib = ((sum(FinalResult,3)).* nonZeroMskFinal) ./ 2; % Final calibration matrix to use on flame data. 
 
+figure; imagesc(Calib)
+colormap jet
+colorbar
+caxis([0 200])
 
-for i = 40:41
-   P = FLAMEstruct.data{1,i};
-   P=P' - 620;
-   
-   P(Calib~=0)= P(Calib~=0)./Calib(Calib~=0)
-   P = P .* (Calib~=0);
-   figure;imagesc(P)
-   colormap jet
-   colorbar
-   caxis([0 200])
-end
-
-
-% ----------- Display Images -------------
-% for n=1:1:tn
+%----------- Display Images -------------
+% for n=1:1:NumMsk
 % 
-% subplot(tn,2,(n*2)-1);imagesc(Mc(:,:,n))
+% subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionL(:,:,n))
 % colormap jet
 % colorbar
 % caxis([0 300])
 % 
-% subplot(tn,2,(n*2));imagesc(img(:,:,n))
+% subplot(NumMsk,2,(n*2));imagesc(imgL(:,:,n))
 % colormap jet
 % caxis([0 900])
 % end
 % 
-% figure;imagesc(Mt)
+% figure;imagesc(totalResultL)
 % colormap jet
 % colorbar
 % caxis([0 300])
 % 
 % figure;
-% for n=1:1:tn
+% for n=1:1:NumMsk
 % 
-% subplot(tn,2,(n*2)-1);imagesc(Mcr(:,:,n))
+% subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionR(:,:,n))
 % colormap jet
 % colorbar
 % caxis([0 300])
 % 
-% subplot(tn,2,(n*2));imagesc(imgr(:,:,n))
+% subplot(NumMsk,2,(n*2));imagesc(imgR(:,:,n))
 % colormap jet
 % caxis([0 900])
 % end
 % 
-% figure;imagesc(Mtr)
+% figure;imagesc(totalResultR)
 % colormap jet
 % colorbar
 % caxis([0 300])
-
-figure;imagesc(FINAL(:,:,1))
-colormap jet
-colorbar
-caxis([0 300])
-
-
- figure;imagesc(FINAL(:,:,2))
- colormap jet
- colorbar
- caxis([0 300])
+% 
+% 
+% 
+% 
+% 
+% figure;imagesc(FinalResult(:,:,1))
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% 
+%  figure;imagesc(FinalResult(:,:,2))
+%  colormap jet
+%  colorbar
+%  caxis([0 300])
