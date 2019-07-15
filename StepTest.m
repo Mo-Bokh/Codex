@@ -22,7 +22,7 @@ Pr = zeros(1024);
 
 
 
-for i=1:10
+for i=:10
    A = zeros(1024);
    P = FLAMEstruct.data{1,i};
    P = P' - 620;

@@ -72,13 +72,13 @@ Mr = zeros (1024);
 Nr = zeros(1024);
    
 %apply mask to each frame and stack them to one matrix
-for i = 1:1:119 ; 
+for i = 2:1:119 ; 
 
 % Extract data from each frame   
-C= SPEstruct.data{1,i} - mean(mean(SPEstruct.data{1,i}(:,1:100))); %Extract data of each frame
+C= SPEstruct.data{1,i} - mean(mean(SPEstruct.data{1,i}(:,600:1000))); %Extract data of each frame
 C = C'; %invert it to correct orientation
 
-SG = sgolayfilt(sum(C),3,55); % smooth the summation of data files to find place of concentration
+SG = sgolayfilt(sum(C),3,65); % smooth the summation of data files to find place of concentration
 [pks,locs]=findpeaks(SG, 'MINPEAKHEIGHT', (max(SG)/1.7)); % find place of peaks
 
 % disp(locs(1))
@@ -88,7 +88,8 @@ SG = sgolayfilt(sum(C),3,55); % smooth the summation of data files to find place
 %__________________________________________________________________________
 
 % ---- Cut matrix from each frame -----
-
+if (locs(1)- (w-52) - (sn-1) *inc ) > 0
+    
 SDm = C(268:518 , (locs(1)- (w-52) - (sn-1) *inc ):(locs(1) + 51 - (sn-1) * inc)); % [ 25 Point from the middle part of each frame ]
 
 % ---- Initialize empty matrix to apply mask on
@@ -120,6 +121,7 @@ Mm = Mm + Fm;
 Pm = Fm~=0;
 Nm = Nm + Pm;
 
+end
 % ------------------ Apply Algorithim on right side -----------------------
 %__________________________________________________________________________
 
@@ -157,14 +159,14 @@ end
 
 %*&^%$#@!
 %----------------------TEST--------------------
-%  if (sn==1)
-% % %disp(locs);
-%  hight= sgolayfilt(sum(C'),3,55)
-%  figure;plot(hight)
+%   if (sn==1)
+% % % %disp(locs);
+%   height= sgolayfilt(sum(C),3,65);
+%   figure;plot(height)
+% % % 
+% %
 % % 
-% % disp(locs(length(locs))-locs(1))
-% 
-% end 
+%  end 
 %^-^-^-^---------------TEST--------------^-^-^-^
 
 end
@@ -202,40 +204,40 @@ FINAL = ((Mt + Mtr).* PCTL .* PCTR)/2;
 
 
 % ----------- Display Images -------------
-for n=1:1:tn
-
-subplot(tn,2,(n*2)-1);imagesc(Mc(:,:,n))
-colormap jet
-colorbar
-caxis([0 300])
-
-subplot(tn,2,(n*2));imagesc(img(:,:,n))
-colormap jet
-caxis([0 900])
-end
-
-figure;imagesc(Mt)
-colormap jet
-colorbar
-caxis([0 300])
-
-figure;
-for n=1:1:tn
-
-subplot(tn,2,(n*2)-1);imagesc(Mcr(:,:,n))
-colormap jet
-colorbar
-caxis([0 300])
-
-subplot(tn,2,(n*2));imagesc(imgr(:,:,n))
-colormap jet
-caxis([0 900])
-end
-
-figure;imagesc(Mtr)
-colormap jet
-colorbar
-caxis([0 300])
+% for n=1:1:tn
+% 
+% subplot(tn,2,(n*2)-1);imagesc(Mc(:,:,n))
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% subplot(tn,2,(n*2));imagesc(img(:,:,n))
+% colormap jet
+% caxis([0 900])
+% end
+% 
+% figure;imagesc(Mt)
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% figure;
+% for n=1:1:tn
+% 
+% subplot(tn,2,(n*2)-1);imagesc(Mcr(:,:,n))
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% subplot(tn,2,(n*2));imagesc(imgr(:,:,n))
+% colormap jet
+% caxis([0 900])
+% end
+% 
+% figure;imagesc(Mtr)
+% colormap jet
+% colorbar
+% caxis([0 300])
 
 figure;imagesc(FINAL)
 colormap jet

@@ -4,6 +4,7 @@
 clear all; close all; clc
 
 SPEstruct = load_SPE_filetype;
+% PlasmaStruct = load_SPE_filetype;
 
 A = SPEstruct.data{1,1} ;
 A = A - mean(mean(A(1:300,:)));
@@ -11,7 +12,7 @@ A = A';
 B = SPEstruct.data{1,2};
 
 %initilize variables
-tn = 5; % Number of masks used
+tn = 10; % Number of masks used
 
 thc = 20; % Number of data collected per row in Mask
 h = 250 ; % Height of mask
@@ -153,17 +154,6 @@ end
 
 %__________________________________________________________________________
 
-%*&^%$#@!
-%----------------------TEST--------------------
-%  if (sn==1)
-% % %disp(locs);
-%  hight= sgolayfilt(sum(C'),3,55)
-%  figure;plot(hight)
-% % 
-% % disp(locs(length(locs))-locs(1))
-% 
-% end 
-%^-^-^-^---------------TEST--------------^-^-^-^
 
 end
 
@@ -238,4 +228,16 @@ figure;imagesc(FINAL)
 colormap jet
 colorbar
 caxis([0 300])
-
+% 
+% 
+% for i=1:1:88
+% A = Plasmastruct.data{1,i} ;
+% A = A';
+% A
+% 
+% figure;imagesc(A')
+% colorbar
+% colormap jet
+% 
+% end
+% 
