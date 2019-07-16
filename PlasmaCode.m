@@ -5,7 +5,7 @@ SPEstruct(2) = load_SPE_filetype; % load SPE 45
 
 % ------ Parameters ------
 
-NumMsk = 5; % Number of masks used
+NumMsk = 60; % Number of masks used
 
 ThickDataMsk = 20; % Number of data collected per row in Mask
 HeightMsk = 250 ; % Height of mask
