@@ -16,28 +16,48 @@ msk = (Calib~=0);
 msk(1:320 , :) = 0;
 
 n = 6;
+
+c=1;
+
 FLAME = zeros(1024);
+Mask = zeros(1024);
+Mask(:,505:514) = 1;
 f = 0;
 Pr = zeros(1024);
 j=1;
 
-
+FlameData=zeros(1024,1024,8);
+%CenterLine=zeros(1,1024);
 for i=1:88
     
    if (rem(i,11) == 0)
   
    FLAME = FLAME ./ Pr;
   
+   FLAME(isnan(FLAME))=0;
    
 figure;imagesc(FLAME) 
 
     colormap jet 
     colorbar
-    caxis([0 15])
+    caxis([0 17])
   
    Pr = zeros(1024);
    f = 0;
    j = 1; 
+   
+   FlameData(:,:,c) = FLAME;
+   
+   CenterArea = FLAME.*Mask;
+   CenterArea(isnan(CenterArea))=0;
+   
+   
+   CenterLine = (sum(CenterArea,2))./10;
+   
+   figure;
+   plot(CenterLine)
+   
+   c=c+1;
    
    else
    A = zeros(1024);

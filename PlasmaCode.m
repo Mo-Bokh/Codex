@@ -199,36 +199,37 @@ colorbar
 caxis([0 200])
 
 %----------- Display Images -------------
-% for n=1:1:NumMsk
-% 
-% subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionL(:,:,n))
-% colormap jet
-% colorbar
-% caxis([0 300])
-% 
-% subplot(NumMsk,2,(n*2));imagesc(imgL(:,:,n))
-% colormap jet
-% caxis([0 900])
-% end
-% 
-% figure;imagesc(totalResultL)
-% colormap jet
-% colorbar
-% caxis([0 300])
-% 
-% figure;
-% for n=1:1:NumMsk
-% 
-% subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionR(:,:,n))
-% colormap jet
-% colorbar
-% caxis([0 300])
-% 
-% subplot(NumMsk,2,(n*2));imagesc(imgR(:,:,n))
-% colormap jet
-% caxis([0 900])
-% end
-% 
+for n=1:1:NumMsk
+
+subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionL(:,:,n))
+colormap jet
+colorbar
+caxis([0 300])
+
+subplot(NumMsk,2,(n*2));imagesc(imgL(:,:,n))
+colormap jet
+caxis([0 900])
+end
+
+figure;imagesc(totalResultL)
+colormap jet
+colorbar
+caxis([0 300])
+
+figure;
+
+for n=1:1:NumMsk
+
+subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionR(:,:,n))
+colormap jet
+colorbar
+caxis([0 300])
+
+subplot(NumMsk,2,(n*2));imagesc(imgR(:,:,n))
+colormap jet
+caxis([0 900])
+end
+
 % figure;imagesc(totalResultR)
 % colormap jet
 % colorbar
