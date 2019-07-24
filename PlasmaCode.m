@@ -18,7 +18,6 @@ LMsk =zeros (250,65);
 
 FinalResult = zeros(1024,1024,2);
 
-
 imgL = zeros(300, 400, NumMsk); 
 imgR = zeros(300, 400, NumMsk); 
 
@@ -68,7 +67,7 @@ MR = zeros (1024);
 NR = zeros(1024);
    
 
-%apply mask to each frame and stack them to one matrix
+    %apply mask to each frame and stack them to one matrix
 for i = 1:1:119 ; 
 
 % Extract data from each frame   
@@ -199,36 +198,36 @@ colorbar
 caxis([0 200])
 
 %----------- Display Images -------------
-for n=1:1:NumMsk
+% for n=1:1:NumMsk
+% 
+% subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionL(:,:,n))
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% subplot(NumMsk,2,(n*2));imagesc(imgL(:,:,n))
+% colormap jet
+% caxis([0 900])
+% end
 
-subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionL(:,:,n))
-colormap jet
-colorbar
-caxis([0 300])
-
-subplot(NumMsk,2,(n*2));imagesc(imgL(:,:,n))
-colormap jet
-caxis([0 900])
-end
-
-figure;imagesc(totalResultL)
-colormap jet
-colorbar
-caxis([0 300])
-
-figure;
-
-for n=1:1:NumMsk
-
-subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionR(:,:,n))
-colormap jet
-colorbar
-caxis([0 300])
-
-subplot(NumMsk,2,(n*2));imagesc(imgR(:,:,n))
-colormap jet
-caxis([0 900])
-end
+% figure;imagesc(totalResultL)
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% figure;
+% 
+% for n=1:1:NumMsk
+% 
+% subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionR(:,:,n))
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% subplot(NumMsk,2,(n*2));imagesc(imgR(:,:,n))
+% colormap jet
+% caxis([0 900])
+% end
 
 % figure;imagesc(totalResultR)
 % colormap jet
