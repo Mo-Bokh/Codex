@@ -12,7 +12,7 @@ A = A';
 B = SPEstruct.data{1,2};
 
 %initilize variables
-tn = 10; % Number of masks used
+tn = 60; % Number of masks used
 
 thc = 20; % Number of data collected per row in Mask
 h = 250 ; % Height of mask
@@ -189,40 +189,40 @@ FINAL = ((Mt + Mtr).* PCTL .* PCTR)/2;
 
 
 % ----------- Display Images -------------
-for n=1:1:tn
-
-subplot(tn,2,(n*2)-1);imagesc(Mc(:,:,n))
-colormap jet
-colorbar
-caxis([0 300])
-
-subplot(tn,2,(n*2));imagesc(img(:,:,n))
-colormap jet
-caxis([0 900])
-end
-
-figure;imagesc(Mt)
-colormap jet
-colorbar
-caxis([0 300])
-
-figure;
-for n=1:1:tn
-
-subplot(tn,2,(n*2)-1);imagesc(Mcr(:,:,n))
-colormap jet
-colorbar
-caxis([0 300])
-
-subplot(tn,2,(n*2));imagesc(imgr(:,:,n))
-colormap jet
-caxis([0 900])
-end
-
-figure;imagesc(Mtr)
-colormap jet
-colorbar
-caxis([0 300])
+% for n=1:1:tn
+% 
+% subplot(tn,2,(n*2)-1);imagesc(Mc(:,:,n))
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% subplot(tn,2,(n*2));imagesc(img(:,:,n))
+% colormap jet
+% caxis([0 900])
+% end
+% 
+% figure;imagesc(Mt)
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% figure;
+% for n=1:1:tn
+% 
+% subplot(tn,2,(n*2)-1);imagesc(Mcr(:,:,n))
+% colormap jet
+% colorbar
+% caxis([0 300])
+% 
+% subplot(tn,2,(n*2));imagesc(imgr(:,:,n))
+% colormap jet
+% caxis([0 900])
+% end
+% 
+% figure;imagesc(Mtr)
+% colormap jet
+% colorbar
+% caxis([0 300])
 
 figure;imagesc(FINAL)
 colormap jet

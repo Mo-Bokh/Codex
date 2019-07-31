@@ -11,7 +11,8 @@ x = provideSteps(startingPosition, step, frames, mm2px);
 
 FLAMEstruct = load_SPE_filetype;
 
-load ('Calib')
+Calib = load ('Calib');
+Calib = Calib.FinalCalib;
 msk = (Calib~=0);
 msk(1:320 , :) = 0;
 
@@ -27,6 +28,7 @@ Pr = zeros(1024);
 j=1;
 
 FlameData=zeros(1024,1024,8);
+CenterData=zeros(1024,1,8)
 %CenterLine=zeros(1,1024);
 for i=1:88
     
@@ -36,7 +38,7 @@ for i=1:88
   
    FLAME(isnan(FLAME))=0;
    
-figure;imagesc(FLAME) 
+  figure;imagesc(FLAME) 
 
     colormap jet 
     colorbar
@@ -52,10 +54,13 @@ figure;imagesc(FLAME)
    CenterArea(isnan(CenterArea))=0;
    
    
-   CenterLine = (sum(CenterArea,2))./10;
+   CenterLine = sgolayfilt((sum(CenterArea,2))./10,3,11);
+   %CenterLine =(sum(CenterArea,2))./10; 
    
-   figure;
-   plot(CenterLine)
+   CenterLine=flipud(CenterLine);
+   CenterData(:,:,(i/11))=CenterLine;
+   
+   %figure; plot(CenterLine)
    
    c=c+1;
    
@@ -92,3 +97,34 @@ end
 %     colormap jet 
 %     colorbar
 %     caxis([0 15])
+
+height=(0:1:293);
+height=height./27.78488797889;
+figure; 
+hold on
+for y=1:7
+    if y==1
+    plot(height',CenterData(357:650,:,y),'k')
+    elseif y==5    
+        
+    else
+    plot(height',CenterData(357:650,:,y))
+    xlim([0 11])
+    end
+end
+
+ legend( 'Base Flame','5 KV    [no   discharge]','6 KV    [no   discharge]','7 KV    [no   discharge]','8 KV    [with discharge]','7.5 KV [with discharge]') 
+ %legend( 'Base Flame ','5 KHz   [no   discharge]','10 KHz [no   discharge]','15 KHz [no   discharge]','20 KHz [with discharge]','25 KHz [with discharge]','30 KHz [with discharge]','Location','northoutside','orientation','horizontal') 
+xlabel('Height above the burner [mm]','fontsize',25)
+ylabel('O fluorescence intensity [arb]','fontsize',25)
+
+comp = zeros(1024);
+comp(:,1:509)=FlameData(:,1:509,4);
+comp(:,510:1024)=FlameData(:,510:1024,6);
+comp(:,509:510)=500;
+% 
+% %figure;imagesc(comp) 
+%     colormap jet 
+%     colorbar
+%     caxis([0 15])
+

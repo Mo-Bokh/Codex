@@ -1,3 +1,42 @@
+% clear all; close all; clc
+% 
+% SPEstruct(1) = load_SPE_filetype; % load SPE 8
+% SPEstruct(2) = load_SPE_filetype; % load SPE 45
+% 
+% A=SPEstruct(1).data{1,1};
+% A=A';
+% A = A - 605;
+% 
+% B=SPEstruct(2).data{1,1};
+% B=B';
+% B=B-605;
+% 
+% C = zeros(1024);
+% 
+% C(250:580,:)=A(390:720,:);
+% 
+% figure;imagesc(C);
+% colormap jet
+% colorbar
+% caxis([0 600])
+% 
+% figure;imagesc(A);
+% colormap jet
+% colorbar
+% caxis([0 600])
+% 
+% figure;imagesc(B);
+% colormap jet
+% colorbar
+% caxis([0 600])
+% 
+% 
+% figure;
+% plot(sgolayfilt(sum(C,2),3,41))
+% hold on
+% plot(sgolayfilt(sum(B,2),3,41))
+
+
 clear all; close all; clc
 
 SPEstruct(1) = load_SPE_filetype; % load SPE 44
@@ -71,8 +110,11 @@ NR = zeros(1024);
 for i = 1:1:119 ; 
 
 % Extract data from each frame   
-RawData= SPEstruct(d).data{1,i} - mean(mean(SPEstruct(d).data{1,i}(:,1:100))); %Extract data of each frame
-RawData = RawData'; %invert it to correct orientation
+dRawData= SPEstruct(d).data{1,i} - mean(mean(SPEstruct(d).data{1,i}(:,1:100))); %Extract data of each frame
+dRawData = dRawData'; %invert it to correct orientation
+
+RawData=zeros(1024);
+RawData(250:580,:)=dRawData(390:720,:);
 
 ConcenData = sgolayfilt(sum(RawData),3,65); % smooth the summation of data files to find place of concentration
 [pks,locs]=findpeaks(ConcenData, 'MINPEAKHEIGHT', (max(ConcenData)/1.7)); % find place of peaks
@@ -183,7 +225,7 @@ totalResultR(NcR~=0) = totalResultR(NcR~=0) ./ NcR(NcR~=0);
 nonZeroTotalL = totalResultL ~=0;
 nonZeroTotalR = totalResultR ~=0;
 
-FinalResult(:,:,d) = ((totalResultL + totalResultR))./(nonZeroTotalL+nonZeroTotalR);
+FinalResult(:,:,d) = ((totalResultL + totalResultR) )./(nonZeroTotalL + nonZeroTotalR);
 
 
 end
@@ -209,14 +251,14 @@ caxis([0 200])
 % colormap jet
 % caxis([0 900])
 % end
-
+% 
 % figure;imagesc(totalResultL)
 % colormap jet
 % colorbar
 % caxis([0 300])
 % 
 % figure;
-% 
+
 % for n=1:1:NumMsk
 % 
 % subplot(NumMsk,2,(n*2)-1);imagesc(ResultCollectionR(:,:,n))
